@@ -40,3 +40,6 @@ target_link_libraries(shamir_client PUBLIC server)
 
 add_executable(shamir_server shamir/server.cpp)
 target_link_libraries(shamir_server PUBLIC server)
+
+add_executable(math_test test/math_test.cpp)
+target_link_libraries(math_test PUBLIC server)
