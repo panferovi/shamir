@@ -1,5 +1,7 @@
 #include "math/math.h"
-#include <ctime>
+#include "utils/macros.h"
+#include <random>
+#include <chrono>
 
 namespace math {
 namespace {
@@ -37,6 +39,40 @@ Polynomial XMinusNumber(NumT num, NumT p)
 
 }  // namespace
 
+Polynomial &Polynomial::AddLikeAction(const Polynomial &other, std::function<NumT(NumT, NumT)> op)
+{
+    ASSERT_PRINT(p_ == other.p_, "polynomials from different fields!");
+    size_t other_size = other.coefs_.size();
+    if (other_size > coefs_.size())
+        coefs_.resize(other_size, 0);
+    for (size_t power = 0; power < std::min(other_size, coefs_.size()); power++)
+        coefs_[power] = op(coefs_[power], other.coefs_[power]) % p_;
+    return *this;
+}
+
+Polynomial &Polynomial::operator*=(const Polynomial &other)
+{
+    ASSERT_PRINT(p_ == other.p_, "polynomials from different fields!");
+    size_t my_size = coefs_.size();
+    size_t other_size = other.coefs_.size();
+    std::vector<NumT> new_coefs(my_size + other_size - 1);
+    for (size_t i_my = 0; i_my < my_size; i_my++)
+        for (size_t i_other = 0; i_other < other_size; i_other++)
+            new_coefs[i_my + i_other] = (new_coefs[i_my + i_other] + coefs_[i_my] * other.coefs_[i_other]) % p_;
+    coefs_ = std::move(new_coefs);
+    return *this;
+}
+
+void Polynomial::FillRandom()
+{
+    static std::mt19937_64 rand_gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    for (auto &elem : coefs_)
+        elem = rand_gen() % p_;
+    auto &last = *coefs_.rbegin();
+    if (last == 0)
+        last = 1;
+}
+
 Polynomial operator+(const Polynomial &left, const Polynomial &right)
 {
     Polynomial result = left;
@@ -58,11 +94,11 @@ Polynomial operator*(const Polynomial &left, const Polynomial &right)
     return result;
 }
 
+/// https://en.wikipedia.org/wiki/Shamir's_secret_sharing
 SecretInfo ShareSecret(NumT secret, NumT k, NumT n)
 {
     ASSERT_PRINT(k > 0, "incorrect parameter k!");
     ASSERT_PRINT(n > 0, "incorrect parameter n!");
-    std::srand(std::time(nullptr));
 
     NumT p = GetNearestPrimeNumber(secret + 1);
     SecretInfo result(p, k);
@@ -75,7 +111,8 @@ SecretInfo ShareSecret(NumT secret, NumT k, NumT n)
     return result;
 }
 
-Polynomial GetSecret(SecretInfo secrets)
+/// https://en.wikipedia.org/wiki/Shamir's_secret_sharing
+std::optional<Polynomial> GetSecretPolynomial(SecretInfo secrets)
 {
     ASSERT_PRINT(secrets.points_.size() >= secrets.k_, "incorrect secrets!");
     Polynomial result(secrets.p_, secrets.k_ - 1);
@@ -96,7 +133,17 @@ Polynomial GetSecret(SecretInfo secrets)
         result += l_i;
     }
 
+    // for (const auto &piece : secrets.)
+
     return result;
+}
+
+std::optional<NumT> GetSecret(SecretInfo secrets)
+{
+    auto poly = GetSecretPolynomial(std::move(secrets));
+    if (poly)
+        return (*poly)[0];
+    return std::nullopt;
 }
 
 }  // namespace math

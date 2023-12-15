@@ -16,6 +16,8 @@ endfunction(filter_items)
 
 file(GLOB_RECURSE SHAMIR_SRC
     libs/*.cpp
+    libs/*.cpp
+    test/*.cpp
     include/*.h
 )
 
