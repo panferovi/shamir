@@ -16,6 +16,8 @@ endfunction(filter_items)
 
 file(GLOB_RECURSE SHAMIR_SRC
     libs/*.cpp
+    libs/*.cpp
+    test/*.cpp
     include/*.h
 )
 
@@ -40,3 +42,6 @@ target_link_libraries(shamir_client PUBLIC server)
 
 add_executable(shamir_server shamir/server.cpp)
 target_link_libraries(shamir_server PUBLIC server)
+
+add_executable(math_test test/math_test.cpp)
+target_link_libraries(math_test PUBLIC server)

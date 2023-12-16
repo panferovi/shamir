@@ -6,6 +6,7 @@ set(SERVER_SRC
     server/client.cpp
     server/tcp_server.cpp
     threadpool/thread_pool.cpp
+    math/math.cpp
 )
 
 set(BOOST_LIB -lboost_system)
