@@ -2,7 +2,7 @@
 #include <cstring>
 #include <iostream>
 
-namespace shamir {
+namespace shagit {
 [[noreturn]] void AssertionFail(const char *expr, const char *file, unsigned line, const char *function)
 {
     int errnum = errno;
@@ -14,4 +14,4 @@ namespace shamir {
     std::abort();
 }
 
-}  // namespace shamir
+}  // namespace shagit

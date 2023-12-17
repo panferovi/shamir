@@ -1,8 +1,10 @@
+#include <vector>
+
 #include "server/session.h"
 #include "server/tcp_server.h"
 #include "utils/macros.h"
 
-namespace shamir {
+namespace shagit {
 
 using namespace boost::asio;
 
@@ -64,21 +66,65 @@ void TCPServer::HandleConnection(Session *session)
 {
     connections_++;
     thread_pool_.Submit([this, session]() {
-        HandleRequest(session->GetSocket());
+        HandleRequest(session);
         delete session;
     });
 }
 
-void TCPServer::HandleRequest(ip::tcp::socket &socket)
+void TCPServer::HandleRequest(Session *session)
 {
-    boost::system::error_code error;
-    boost::asio::streambuf req;
-    // TODO(panferovi): change delim to '\0'
-    boost::asio::read_until(socket, req, '\n', error);
-    if (error) {
-        LOG_DEBUG("Failed to handle request: %s\n", error.message().c_str());
+    auto buf = session->Read();
+    auto data = SplitData(buf, Session::DELIM);
+    ASSERT(!data.empty());
+
+    auto request = static_cast<Request>(std::atoi(data[data.size() - 1].c_str()));
+    data.resize(data.size() - 1);
+
+    switch (request) {
+        case Request::LIST_HUBS:
+            ListHubs(session);
+            break;
+        case Request::CREATE_HUB:
+            CreateHub(data);
+            break;
+        default:
+            UNREACHABLE();
     }
-    std::string data = boost::asio::buffer_cast<const char *>(req.data());
 }
 
-}  // namespace shamir
+void TCPServer::ListHubs(Session *session)
+{
+    std::stringstream ss;
+    storage_.ListProjects(ss);
+    ss << Session::DELIM;
+    session->Write(ss.str());
+}
+
+void TCPServer::CreateHub(const std::vector<std::string> &data)
+{
+    ProjectInfo info;
+    info.proj_name = data[0];
+    info.secret = std::atoll(data[1].c_str());
+    info.access_number = std::atoll(data[2].c_str());
+    info.owner_name = data[3];
+    info.owner_mail = data[4];
+    storage_.CreateProject(info);
+}
+
+std::vector<std::string> TCPServer::SplitData(const std::string &str, char separator)
+{
+    std::vector<std::string> strings;
+    int start_idx = 0, end_idx = 0;
+    for (int i = 0; i < str.size(); i++) {
+        if (str[i] == separator) {
+            end_idx = i;
+            std::string tmp;
+            tmp.append(str, start_idx, end_idx - start_idx);
+            strings.push_back(tmp);
+            start_idx = end_idx + 1;
+        }
+    }
+    return strings;
+}
+
+}  // namespace shagit

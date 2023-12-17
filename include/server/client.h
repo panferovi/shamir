@@ -3,9 +3,7 @@
 
 #include "server/session.h"
 
-namespace shamir {
-
-enum Request { CREATE_HUB, JOIN_HUB, LIST_HUBS, ADD_PARTICIPANT };
+namespace shagit {
 
 class Client {
 public:
@@ -13,10 +11,16 @@ public:
     void SendRequest(Request request);
 
 private:
+    // TODO(panferovi): remove from this class
+    std::string GetLine(const std::string &out);
+
+    void ListHubs();
+    std::string CreateHub();
+
     boost::asio::io_service io_service_;
     Session session_ {io_service_};
 };
 
-}  // namespace shamir
+}  // namespace shagit
 
 #endif  // SERVER_CLIENT_H

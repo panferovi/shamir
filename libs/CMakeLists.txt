@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(shamir VERSION 1.0 DESCRIPTION "shamir")
+project(shagit VERSION 1.0 DESCRIPTION "shagit")
 
 set(SERVER_SRC
     server/client.cpp
     server/tcp_server.cpp
     threadpool/thread_pool.cpp
     math/math.cpp
+    storage/storage.cpp
 )
 
 set(BOOST_LIB -lboost_system)

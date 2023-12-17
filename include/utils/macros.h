@@ -48,7 +48,7 @@
 
 #define LOG_DEBUG(format, ...) printf(format, ##__VA_ARGS__)
 
-#define ASSERT_FAIL(expr) shamir::AssertionFail(expr, __FILE__, __LINE__, __FUNCTION__)
+#define ASSERT_FAIL(expr) shagit::AssertionFail(expr, __FILE__, __LINE__, __FUNCTION__)
 
 #define ASSERT(cond)         \
     if (UNLIKELY(!(cond))) { \

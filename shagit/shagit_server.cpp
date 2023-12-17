@@ -6,7 +6,7 @@ int main()
 {
     using namespace std::chrono_literals;
 
-    shamir::TCPServer server;
+    shagit::TCPServer server;
     server.Start();
 
     while (!server.IsClosed()) {

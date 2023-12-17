@@ -2,7 +2,7 @@
 
 #include "utils/macros.h"
 
-namespace shamir {
+namespace shagit {
 
 thread_local ThreadPool *current_pool;
 
@@ -65,4 +65,4 @@ void ThreadPool::Work()
     }
 }
 
-}  // namespace shamir
+}  // namespace shagit

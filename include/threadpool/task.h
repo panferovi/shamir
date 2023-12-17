@@ -3,10 +3,10 @@
 
 #include <functional>
 
-namespace shamir {
+namespace shagit {
 
 using Task = std::function<void()>;
 
-}  // namespace shamir
+}  // namespace shagit
 
 #endif  // THREADPOOL_TASK_H

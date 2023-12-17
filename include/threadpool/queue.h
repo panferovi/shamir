@@ -6,7 +6,7 @@
 #include <optional>
 #include <condition_variable>
 
-namespace shamir {
+namespace shagit {
 
 // Unbounded blocking multi-producers/multi-consumers (MPMC) queue
 template <typename T>
@@ -49,6 +49,6 @@ private:
     bool is_closed_ {false};
 };
 
-}  // namespace shamir
+}  // namespace shagit
 
 #endif  // THREADPOOL_QUEUE_H

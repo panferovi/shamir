@@ -5,8 +5,9 @@
 
 #include "threadpool/thread_pool.h"
 #include "server/session.h"
+#include "storage/storage.h"
 
-namespace shamir {
+namespace shagit {
 
 class TCPServer {
 public:
@@ -22,7 +23,13 @@ private:
     void StartSession();
     void ServerLoop(Session *session, const boost::system::error_code &error);
     void HandleConnection(Session *session);
-    void HandleRequest(boost::asio::ip::tcp::socket &socket);
+    void HandleRequest(Session *session);
+
+    void ListHubs(Session *session);
+    void CreateHub(const std::vector<std::string> &data);
+
+
+    std::vector<std::string> SplitData(const std::string &str, char separator);
 
     boost::asio::io_service io_service_;
     boost::asio::ip::tcp::endpoint endpoint_ {boost::asio::ip::tcp::v4(), Session::PORT};
@@ -31,8 +38,10 @@ private:
     Session *last_session_ {nullptr};
     std::atomic<uint64_t> connections_ {0};
     std::atomic<bool> is_closed_ {false};
+
+    ProjectStorage storage_;
 };
 
-}  // namespace shamir
+}  // namespace shagit
 
 #endif  // TCP_SERVER_H

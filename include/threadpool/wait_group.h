@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <condition_variable>
 
-namespace shamir {
+namespace shagit {
 
 class WaitGroup {
 public:
@@ -37,6 +37,6 @@ private:
     std::condition_variable is_zero_;
 };
 
-}  // namespace shamir
+}  // namespace shagit
 
 #endif  // THREADPOOL_WAIT_GROUP_H

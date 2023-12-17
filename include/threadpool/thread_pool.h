@@ -10,7 +10,7 @@
 #include "threadpool/wait_group.h"
 #include "utils/macros.h"
 
-namespace shamir {
+namespace shagit {
 
 // Fixed-size pool of worker threads
 class ThreadPool {
@@ -47,6 +47,6 @@ private:
     std::atomic<bool> workers_done_ {true};
 };
 
-}  // namespace shamir
+}  // namespace shagit
 
 #endif  // THREADPOOL_H
