@@ -69,15 +69,19 @@ namespace fs = std::filesystem;
  *          Mail: gr.ivan.alex@yandex.ru
  */
 
-struct ProjectInfo {
+struct ParticipantInfo {
+    std::string name;
+    std::string mail;
+};
+
+struct HubInfo {
     std::string proj_name;
     int64_t secret;
     size_t access_number;
-    std::string owner_name;
-    std::string owner_mail;
+    ParticipantInfo owner;
 };
 
-class ProjectStorage {
+class HubStorage {
 public:
     using Id = uint64_t;
     using DirEntry = fs::directory_entry;
@@ -88,14 +92,23 @@ public:
     static constexpr std::string_view PARTICIPANTS_REQ = "ParticipantsRequests";
     static constexpr std::string_view METAFILE = "METAINFO";
 
-    explicit ProjectStorage();
+    static constexpr std::string_view SECRET = "Shamir Secret: ";
+    static constexpr std::string_view OWNER = "Owner:";
+    static constexpr std::string_view NAME = "Name: ";
+    static constexpr std::string_view MAIL = "Mail: ";
 
-    Id CreateProject(const ProjectInfo &proj_info);
-    Id CreatePR(Id proj_id, std::string name, std::string mail);
-    void ApprovePR(Id proj_id, Id pr_id);
+    explicit HubStorage();
+
+    void ListHubs(std::stringstream &ss);
+    Id CreateHub(const HubInfo &proj_info);
+    Id JoinHub(Id proj_id, const ParticipantInfo &participant);
+    void ApproveJoin(Id proj_id, Id pr_id);
     // Id CreateCR(Id proj_id, ...);
     void ApproveCR(Id cr_id);
-    void ListProjects(std::stringstream &ss);
+
+    bool CheckSecret(Id hub_id, int64_t secret);
+    ParticipantInfo GetOwner(Id hub_id);
+    ParticipantInfo GetParticipant(Id hub_id, Id pr_id);
 
     void TraverseStorage(const StorageVisitor &visitor);
 

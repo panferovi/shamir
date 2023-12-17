@@ -15,7 +15,9 @@ private:
     std::string GetLine(const std::string &out);
 
     void ListHubs();
-    std::string CreateHub();
+    void CreateHub();
+    void JoinHub();
+    void ApproveJoin();
 
     boost::asio::io_service io_service_;
     Session session_ {io_service_};

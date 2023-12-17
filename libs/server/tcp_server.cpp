@@ -3,6 +3,7 @@
 #include "server/session.h"
 #include "server/tcp_server.h"
 #include "utils/macros.h"
+#include "utils/mailutils.h"
 
 namespace shagit {
 
@@ -87,6 +88,12 @@ void TCPServer::HandleRequest(Session *session)
         case Request::CREATE_HUB:
             CreateHub(data);
             break;
+        case Request::JOIN_HUB:
+            JoinHub(data);
+            break;
+        case Request::APPROVE_JOIN:
+            ApproveJoin(session, data);
+            break;
         default:
             UNREACHABLE();
     }
@@ -95,20 +102,54 @@ void TCPServer::HandleRequest(Session *session)
 void TCPServer::ListHubs(Session *session)
 {
     std::stringstream ss;
-    storage_.ListProjects(ss);
-    ss << Session::DELIM;
+    storage_.ListHubs(ss);
     session->Write(ss.str());
 }
 
 void TCPServer::CreateHub(const std::vector<std::string> &data)
 {
-    ProjectInfo info;
+    HubInfo info;
     info.proj_name = data[0];
-    info.secret = std::atoll(data[1].c_str());
-    info.access_number = std::atoll(data[2].c_str());
-    info.owner_name = data[3];
-    info.owner_mail = data[4];
-    storage_.CreateProject(info);
+    info.secret = std::stoll(data[1]);
+    info.access_number = std::stoull(data[2]);
+    info.owner.name = data[3];
+    info.owner.mail = data[4];
+    storage_.CreateHub(info);
+}
+
+void TCPServer::JoinHub(const std::vector<std::string> &data)
+{
+    HubStorage::Id hub_id = std::stoull(data[0]);
+    ParticipantInfo participant = {data[1], data[2]};
+    auto req_id = storage_.JoinHub(hub_id, participant);
+
+    auto owner = storage_.GetOwner(hub_id);
+    SendMail("Join Request",
+             "Hi, " + owner.name + "!\nPlease, could you approve join request " + std::to_string(req_id) + " for " +
+                 participant.name,
+             owner.mail);
+}
+
+void TCPServer::ApproveJoin(Session *session, const std::vector<std::string> &data)
+{
+    int64_t secret = std::stoll(data[0]);
+    HubStorage::Id hub_id = std::stoull(data[1]);
+
+    if (!storage_.CheckSecret(hub_id, secret)) {
+        session->Write("Your secret is not valid");
+        return;
+    }
+
+    session->Write("Your secret is valid");
+
+    HubStorage::Id pr_id = std::stoull(data[2]);
+    auto partcipant = storage_.GetParticipant(hub_id, pr_id);
+    storage_.ApproveJoin(hub_id, pr_id);
+
+    SendMail("Join Approved",
+             "Hi, " + partcipant.name + "!\nThank you for join. Your Id is " + std::to_string(pr_id) +
+                 "\nYour key is: ..." + "\nYour secret piece is: ...",
+             partcipant.mail);
 }
 
 std::vector<std::string> TCPServer::SplitData(const std::string &str, char separator)

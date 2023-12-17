@@ -27,7 +27,8 @@ private:
 
     void ListHubs(Session *session);
     void CreateHub(const std::vector<std::string> &data);
-
+    void JoinHub(const std::vector<std::string> &data);
+    void ApproveJoin(Session *session, const std::vector<std::string> &data);
 
     std::vector<std::string> SplitData(const std::string &str, char separator);
 
@@ -39,7 +40,7 @@ private:
     std::atomic<uint64_t> connections_ {0};
     std::atomic<bool> is_closed_ {false};
 
-    ProjectStorage storage_;
+    HubStorage storage_;
 };
 
 }  // namespace shagit

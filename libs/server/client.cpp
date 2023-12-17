@@ -20,9 +20,63 @@ void Client::SendRequest(Request request)
         case Request::CREATE_HUB:
             CreateHub();
             break;
+        case Request::JOIN_HUB:
+            JoinHub();
+            break;
+        case Request::APPROVE_JOIN:
+            ApproveJoin();
+            break;
         default:
             UNREACHABLE();
     }
+}
+
+void Client::ListHubs()
+{
+    std::string request;
+    request += std::to_string(Request::LIST_HUBS);
+    session_.Write(request);
+
+    auto hubs = session_.Read();
+    std::cout << hubs << std::endl;
+}
+
+void Client::CreateHub()
+{
+    std::string request;
+    request += GetLine("Project name: ");
+    request += GetLine("Shamir Secret: ");
+    request += GetLine("Access number: ");
+    request += GetLine("Owner:\n\tName: ");
+    request += GetLine("\tMail: ");
+    request += std::to_string(Request::CREATE_HUB);
+
+    session_.Write(request);
+}
+
+void Client::JoinHub()
+{
+    std::string request;
+    request += GetLine("Project Id: ");
+    request += GetLine("Participant:\n\tName: ");
+    request += GetLine("\tMail: ");
+    request += std::to_string(Request::JOIN_HUB);
+
+    session_.Write(request);
+}
+
+void Client::ApproveJoin()
+{
+    std::string request;
+    request += GetLine("Shamir secret: ");
+    request += GetLine("Project Id: ");
+    request += GetLine("PR Id: ");
+    request += std::to_string(Request::APPROVE_JOIN);
+
+    session_.Write(request);
+
+    auto res = session_.Read();
+    std::cout << res << std::endl;
 }
 
 std::string Client::GetLine(const std::string &out)
@@ -32,31 +86,6 @@ std::string Client::GetLine(const std::string &out)
     std::getline(std::cin, line, '\n');
     line += Session::DELIM;
     return line;
-}
-
-void Client::ListHubs()
-{
-    std::string req;
-    req += std::to_string(Request::LIST_HUBS) + Session::DELIM;
-    session_.Write(req);
-
-    auto hubs = session_.Read();
-    std::cout << hubs << std::endl;
-}
-
-std::string Client::CreateHub()
-{
-    std::string req;
-    req += GetLine("Project name: ");
-    req += GetLine("Shamir Secret: ");
-    req += GetLine("Access number: ");
-    req += GetLine("Owner:\n\tName: ");
-    req += GetLine("\tMail: ");
-    req += std::to_string(Request::CREATE_HUB) + Session::DELIM;
-
-    session_.Write(req);
-
-    return req;
 }
 
 }  // namespace shagit

@@ -7,7 +7,14 @@
 
 namespace shagit {
 
-enum Request { CREATE_HUB, JOIN_HUB, LIST_HUBS, ADD_PARTICIPANT };
+enum Request {
+    LIST_HUBS,
+    CREATE_HUB,
+    JOIN_HUB,
+    APPROVE_JOIN,
+    CREATE_CR,
+    APPROVE_CR,
+};
 
 class Session {
 public:
@@ -21,16 +28,18 @@ public:
         return socket_;
     }
 
-    void Write(std::string data) {
+    void Write(const std::string &data)
+    {
         boost::system::error_code error;
-        boost::asio::write(socket_, boost::asio::buffer(data), error);
+        boost::asio::write(socket_, boost::asio::buffer(data + DELIM), error);
         if (error) {
             LOG_DEBUG("Failed to send request: %s\n error: %s\n", data.c_str(), error.message().c_str());
             return;
         }
     }
 
-    std::string Read() {
+    std::string Read()
+    {
         boost::asio::streambuf buf;
         boost::system::error_code error;
         boost::asio::read_until(socket_, buf, Session::DELIM, error);
@@ -38,9 +47,9 @@ public:
             LOG_DEBUG("Failed to handle request: %s\n", error.message().c_str());
             return "";
         }
+
         return boost::asio::buffer_cast<const char *>(buf.data());
     }
-
 
 private:
     boost::asio::ip::tcp::socket socket_;

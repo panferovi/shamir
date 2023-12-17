@@ -14,13 +14,13 @@ function(filter_items aItems aRegEx)
     set(${aItems} ${${aItems}} PARENT_SCOPE)
 endfunction(filter_items)
 
-file(GLOB_RECURSE SHAMIR_SRC
+file(GLOB_RECURSE SHAGIT_SRC
     libs/*.cpp
     test/*.cpp
     include/*.h
 )
 
-filter_items(SHAMIR_SRC "CMakeFiles/*")
+filter_items(SHAGIT_SRC "CMakeFiles/*")
 
 find_program(CLANG_FORMAT "clang-format-14" REQUIRED)
 
@@ -28,7 +28,7 @@ add_custom_target(format
     COMMAND clang-format-14
     -i
     -style=file
-    ${SHAMIR_SRC}
+    ${SHAGIT_SRC}
 )
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
