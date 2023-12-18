@@ -96,8 +96,11 @@ void TCPServer::HandleRequest(Session *session)
             ApproveJoin(session, data);
             break;
         case Request::GET_HUB:
-            GetHub();
+            GetHub(session);
             break;
+        // case Request::CREATE_CR:
+        //     CreateCR(session);
+        //     break;
         default:
             UNREACHABLE();
     }
@@ -170,17 +173,34 @@ void TCPServer::ApproveJoin(Session *session, const std::vector<std::string> &da
              partcipant.mail);
 }
 
-void TCPServer::GetHub()
+void TCPServer::GetHub(Session *session)
 {
     DirGuard guard;
     std::error_code error;
-    fs::path current_path(std::getenv(HubStorage::CR_DIR_VAR.data()));
-    // current_path /= ;
+    fs::path current_path(std::getenv(HubStorage::STORAGE_DIR_VAR.data()));
+    current_path /= session->GoodRead();
+    current_path /= "Storage";
+    // current_path /= HubStorage::CHANGE_REQ;
     fs::current_path(current_path, error);
     if (error) {
         std::cout << "Troubles with dirs.\n";
         return;
     }
+    std::cout << "I'm here!\n";
+    fs::recursive_directory_iterator file_iter(fs::current_path(), fs::directory_options::none, error);
+    for (auto &iter : file_iter)
+    {
+        // auto path = iter.path();
+        // std::cout << path.filename() << std::endl;
+        // iter.relative_path();
+        std::cout << iter.path().filename() << std::endl;
+        session->Write(iter.path().filename());
+        std::fstream file_stream(iter.path(), std::ios::binary | std::ios::in);
+        std::string file;
+        file_stream >> file;
+        session->Write(file);
+    }
+    session->Write("");
 }
 
 std::vector<std::string> TCPServer::SplitData(const std::string &str, char separator)

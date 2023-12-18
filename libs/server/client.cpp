@@ -25,6 +25,7 @@ void Client::SendRequest(Args args)
             break;
         case Request::APPROVE_JOIN:
             ApproveJoin();
+            break;
         case GET_HUB:
             GetHub(args);
             break;
@@ -101,16 +102,19 @@ void Client::GetHub(Args args)
         return;
     }
 
-    // session_.Write(std::to_string(Request::GET_HUB) + Session::DELIM);
+    session_.Write(std::to_string(Request::GET_HUB) + Session::DELIM);
+    session_.GoodWrite(std::to_string(*args.storage_id));
+    // return;
 
     std::string filename = session_.Read();
-    while (!filename.length()) {
-        fs::path dir_path(filename);
-        dir_path.remove_filename();
-        fs::create_directories(dir_path);
+    while (filename.length()) {
+        std::cout << filename << std::endl;
+        // fs::path dir_path(filename);
+        // dir_path.remove_filename();
+        // fs::create_directories(dir_path.parent_path());
         std::string file = session_.Read();
         std::fstream file_stream(filename, std::ios::binary | std::ios::out);
-        file_stream.write(file.data(), file.max_size());
+        file_stream.write(file.data(), file.length());
         filename = session_.Read();
     }
 }

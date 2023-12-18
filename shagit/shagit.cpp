@@ -11,7 +11,7 @@ Args ParseArgs(int argc, char **argv)
                      {"create-hub", no_argument, &request_opt, CREATE_HUB},
                      {"join-hub", no_argument, &request_opt, JOIN_HUB},
                      {"approve-hub", no_argument, &request_opt, APPROVE_JOIN},
-                     {"get-hub", required_argument, &request_opt, GET_HUB},
+                     {"get-hub", no_argument, &request_opt, GET_HUB},
                      {"create-cr", required_argument, &request_opt, CREATE_CR},
                      {"approve-cr", required_argument, &request_opt, APPROVE_CR},
                      {"echo", no_argument, &request_opt, ECHO_TEST},
@@ -24,7 +24,8 @@ Args ParseArgs(int argc, char **argv)
     std::optional<HubStorage::Id> id = std::nullopt;
     switch (request) {
         case GET_HUB:
-            id.emplace(std::stoull(argv[index]));
+            id.emplace(0);
+            std::cin >> *id;
             break;
         case CREATE_CR:
             id.emplace(std::stoull(argv[index]));
