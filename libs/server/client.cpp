@@ -115,40 +115,6 @@ void Client::GetHub(Args args)
     }
 }
 
-void Client::GetHub(Args args)
-{
-    DirGuard guard;
-    std::error_code error;
-    fs::path current_path(std::getenv(STORAGE_DIR_VAR.data()));
-    current_path /= std::to_string(*args.storage_id);
-    fs::create_directories(current_path, error);
-    fs::current_path(current_path, error);
-    if (error) {
-        std::cout << "Troubles with dirs.\n";
-        return;
-    }
-
-    // session_.Write(std::to_string(Request::GET_HUB) + Session::DELIM);
-
-    std::string filename = session_.GoodRead();
-    while (!filename.length()) {
-        fs::path dir_path(filename);
-        dir_path.remove_filename();
-        fs::create_directories(dir_path);
-        std::string file = session_.GoodRead();
-        std::fstream file_stream(filename, std::ios::binary | std::ios::out);
-        file_stream.write(file.data(), file.max_size());
-        filename = session_.GoodRead();
-    }
-}
-
-void Client::EchoTest()
-{
-    std::string line;
-    std::getline(std::cin, line, '\n');
-    session_.GoodWrite(line);
-}
-
 std::string Client::GetLine(const std::string &out)
 {
     std::string line;
