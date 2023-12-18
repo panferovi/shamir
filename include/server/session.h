@@ -23,7 +23,6 @@ public:
 
     void Write(std::string data)
     {
-        data += DELIM;
         boost::system::error_code error;
         size_t data_size = data.size();
         boost::asio::write(socket_, boost::asio::buffer(&data_size, sizeof(data_size)), error);

@@ -38,7 +38,7 @@ void Client::SendRequest(Args args)
 void Client::ListHubs()
 {
     std::string request;
-    request += std::to_string(Request::LIST_HUBS);
+    request += std::to_string(Request::LIST_HUBS) + Session::DELIM;
     session_.Write(request);
 
     auto hubs = session_.Read();
@@ -58,7 +58,7 @@ void Client::CreateHub()
         request += GetLine("Participant:\n\tName: ");
         request += GetLine("\tMail: ");
     }
-    request += std::to_string(Request::CREATE_HUB);
+    request += std::to_string(Request::CREATE_HUB) + Session::DELIM;
 
     session_.Write(request);
 }
@@ -69,7 +69,7 @@ void Client::JoinHub()
     request += GetLine("Project Id: ");
     request += GetLine("Participant:\n\tName: ");
     request += GetLine("\tMail: ");
-    request += std::to_string(Request::JOIN_HUB);
+    request += std::to_string(Request::JOIN_HUB) + Session::DELIM;
 
     session_.Write(request);
 }
@@ -80,7 +80,7 @@ void Client::ApproveJoin()
     request += GetLine("Shamir secret: ");
     request += GetLine("Project Id: ");
     request += GetLine("PR Id: ");
-    request += std::to_string(Request::APPROVE_JOIN);
+    request += std::to_string(Request::APPROVE_JOIN) + Session::DELIM;
 
     session_.Write(request);
 
