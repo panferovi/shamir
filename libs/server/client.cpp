@@ -26,6 +26,12 @@ void Client::SendRequest(Args args)
         case Request::APPROVE_JOIN:
             ApproveJoin();
             break;
+        case Request::GET_HUB:
+            GetHub(args);
+            break;
+        case Request::APPROVE_CR:
+            ApproveCR();
+            break;
         case UNKNOWN:
             return;
         default:
@@ -36,7 +42,7 @@ void Client::SendRequest(Args args)
 void Client::ListHubs()
 {
     std::string request;
-    request += std::to_string(Request::LIST_HUBS);
+    request += std::to_string(Request::LIST_HUBS) + Session::DELIM;
     session_.Write(request);
 
     auto hubs = session_.Read();
@@ -56,7 +62,7 @@ void Client::CreateHub()
         request += GetLine("Participant:\n\tName: ");
         request += GetLine("\tMail: ");
     }
-    request += std::to_string(Request::CREATE_HUB);
+    request += std::to_string(Request::CREATE_HUB) + Session::DELIM;
 
     session_.Write(request);
 }
@@ -67,7 +73,7 @@ void Client::JoinHub()
     request += GetLine("Project Id: ");
     request += GetLine("Participant:\n\tName: ");
     request += GetLine("\tMail: ");
-    request += std::to_string(Request::JOIN_HUB);
+    request += std::to_string(Request::JOIN_HUB) + Session::DELIM;
 
     session_.Write(request);
 }
@@ -78,12 +84,52 @@ void Client::ApproveJoin()
     request += GetLine("Shamir secret: ");
     request += GetLine("Project Id: ");
     request += GetLine("PR Id: ");
-    request += std::to_string(Request::APPROVE_JOIN);
+    request += std::to_string(Request::APPROVE_JOIN) + Session::DELIM;
 
     session_.Write(request);
 
     auto res = session_.Read();
     std::cout << res << std::endl;
+}
+
+void Client::GetHub(Args args)
+{
+    DirGuard guard;
+    std::error_code error;
+    fs::path current_path(std::getenv(STORAGE_DIR_VAR.data()));
+    current_path /= std::to_string(*args.storage_id);
+    fs::create_directories(current_path, error);
+    fs::current_path(current_path, error);
+    if (error) {
+        std::cout << "Troubles with dirs.\n";
+        return;
+    }
+
+    // session_.Write(std::to_string(Request::GET_HUB) + Session::DELIM);
+
+    std::string filename = session_.Read();
+    while (!filename.length()) {
+        fs::path dir_path(filename);
+        dir_path.remove_filename();
+        fs::create_directories(dir_path);
+        std::string file = session_.Read();
+        std::fstream file_stream(filename, std::ios::binary | std::ios::out);
+        file_stream.write(file.data(), file.max_size());
+        filename = session_.Read();
+    }
+}
+
+void Client::ApproveCR()
+{
+    std::string request;
+    request += GetLine("Project Id: ");
+    request += GetLine("Participant Id: ");
+    request += GetLine("CR Id: ");
+    request += GetLine("Key: ");
+    request += GetLine("Shamir secret piece: ");
+    request += std::to_string(Request::APPROVE_CR) + Session::DELIM;
+
+    session_.Write(request);
 }
 
 std::string Client::GetLine(const std::string &out)

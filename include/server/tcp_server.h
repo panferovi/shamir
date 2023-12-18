@@ -6,6 +6,7 @@
 #include "threadpool/thread_pool.h"
 #include "server/session.h"
 #include "storage/storage.h"
+#include "math/math.h"
 
 namespace shagit {
 
@@ -29,6 +30,8 @@ private:
     void CreateHub(const std::vector<std::string> &data);
     void JoinHub(const std::vector<std::string> &data);
     void ApproveJoin(Session *session, const std::vector<std::string> &data);
+    void GetHub();
+    void ApproveCR(const std::vector<std::string> &data);
 
     std::vector<std::string> SplitData(const std::string &str, char separator);
 
@@ -41,6 +44,9 @@ private:
     std::atomic<bool> is_closed_ {false};
 
     HubStorage storage_;
+    std::unordered_map<HubStorage::Id, math::SecretInfo> cr_info_;
+    math::NumT current_prime_ {0};
+    math::NumT current_access_number_ {0};
 };
 
 }  // namespace shagit

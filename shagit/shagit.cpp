@@ -11,9 +11,9 @@ Args ParseArgs(int argc, char **argv)
                      {"create-hub", no_argument, &request_opt, CREATE_HUB},
                      {"join-hub", no_argument, &request_opt, JOIN_HUB},
                      {"approve-hub", no_argument, &request_opt, APPROVE_JOIN},
+                     {"approve-cr", no_argument, &request_opt, APPROVE_CR},
                      {"get-hub", required_argument, &request_opt, GET_HUB},
                      {"create-cr", required_argument, &request_opt, CREATE_CR},
-                     {"approve-cr", required_argument, &request_opt, APPROVE_CR},
                      {nullptr, 0, nullptr, 0}};
     int getopt_result = getopt_long(argc, argv, "", opts, &index);
     if (getopt_result == -1)
@@ -26,9 +26,6 @@ Args ParseArgs(int argc, char **argv)
             id.emplace(std::stoull(argv[index]));
             break;
         case CREATE_CR:
-            id.emplace(std::stoull(argv[index]));
-            break;
-        case APPROVE_CR:
             id.emplace(std::stoull(argv[index]));
             break;
     }

@@ -95,6 +95,12 @@ void TCPServer::HandleRequest(Session *session)
         case Request::APPROVE_JOIN:
             ApproveJoin(session, data);
             break;
+        case Request::GET_HUB:
+            GetHub();
+            break;
+        case Request::APPROVE_CR:
+            ApproveCR(data);
+            break;
         default:
             UNREACHABLE();
     }
@@ -130,6 +136,8 @@ void TCPServer::CreateHub(const std::vector<std::string> &data)
                      std::to_string(secret_piece.points_[i].value_),
                  info.participants[i].mail);
     }
+    current_prime_ = secret_piece.p_;
+    current_access_number_ = secret_piece.k_;
 }
 
 void TCPServer::JoinHub(const std::vector<std::string> &data)
@@ -165,6 +173,48 @@ void TCPServer::ApproveJoin(Session *session, const std::vector<std::string> &da
              "Hi, " + partcipant.name + "!\nThank you for join to the hub. Your Id is " + std::to_string(pr_id) +
                  "\nYour key is: ..." + "\nYour secret piece is: ...",
              partcipant.mail);
+}
+
+void TCPServer::GetHub()
+{
+    DirGuard guard;
+    std::error_code error;
+    fs::path current_path(std::getenv(HubStorage::CR_DIR_VAR.data()));
+    // current_path /= ;
+    fs::current_path(current_path, error);
+    if (error) {
+        std::cout << "Troubles with dirs.\n";
+        return;
+    }
+}
+
+void TCPServer::ApproveCR(const std::vector<std::string> &data)
+{
+    HubStorage::Id proj_id = std::stoull(data[0]);
+    HubStorage::Id participant_id = std::stoull(data[1]);
+    HubStorage::Id cr_id = std::stoull(data[2]);
+    math::NumT key = std::stoll(data[3]);
+    math::NumT secret_piece = std::stoll(data[4]);
+
+    auto cr_it = cr_info_.find(cr_id);
+    if (cr_it == cr_info_.end()) {
+        math::SecretInfo info(current_prime_, current_access_number_);
+        info.points_.push_back({key, secret_piece});
+        cr_info_.insert({cr_id, std::move(info)});
+        return;
+    }
+
+    cr_it->second.points_.push_back({key, secret_piece});
+
+    if (cr_it->second.points_.size() != current_access_number_) {
+        return;
+    }
+
+    auto secret = math::GetSecret(cr_it->second);
+    if (secret != std::nullopt && storage_.CheckSecret(proj_id, *secret)) {
+        storage_.ApproveCR(proj_id, cr_id);
+        std::cout << "asdasd\n";
+    }
 }
 
 std::vector<std::string> TCPServer::SplitData(const std::string &str, char separator)

@@ -99,7 +99,10 @@ void HubStorage::ApproveJoin(HubStorage::Id hub_id, HubStorage::Id pr_id)
     fs::remove(pr_path);
 }
 
-void HubStorage::ApproveCR(HubStorage::Id cr_id) {}
+void HubStorage::ApproveCR(HubStorage::Id hub_id, HubStorage::Id cr_id)
+{
+    fs::path hub_path(storage_dir_.path() / std::to_string(hub_id) / CHANGE_REQ / std::to_string(cr_id));
+}
 
 void HubStorage::ListHubs(std::stringstream &ss)
 {

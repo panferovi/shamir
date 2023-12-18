@@ -18,6 +18,8 @@ public:
     void SendRequest(Args args);
 
 private:
+    static constexpr std::string_view STORAGE_DIR_VAR = "STORAGE_DIR";
+
     // TODO(panferovi): remove from this class
     std::string GetLine(const std::string &out);
 
@@ -25,6 +27,8 @@ private:
     void CreateHub();
     void JoinHub();
     void ApproveJoin();
+    void GetHub(Args args);
+    void ApproveCR();
 
     boost::asio::io_service io_service_;
     Session session_ {io_service_};

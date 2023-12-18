@@ -12,7 +12,7 @@ enum Request { LIST_HUBS, CREATE_HUB, JOIN_HUB, APPROVE_JOIN, GET_HUB, CREATE_CR
 class Session {
 public:
     static constexpr uint16_t PORT = 1234;
-    static constexpr char DELIM = '$';
+    static constexpr char DELIM = '\n';
 
     Session(boost::asio::io_service &io_service) : socket_(io_service) {}
 
@@ -24,7 +24,9 @@ public:
     void Write(const std::string &data)
     {
         boost::system::error_code error;
-        boost::asio::write(socket_, boost::asio::buffer(data + DELIM), error);
+        size_t data_size = data.size();
+        boost::asio::write(socket_, boost::asio::buffer(&data_size, sizeof(data_size)), error);
+        boost::asio::write(socket_, boost::asio::buffer(data), error);
         if (error) {
             LOG_DEBUG("Failed to send request: %s\n error: %s\n", data.c_str(), error.message().c_str());
             return;
@@ -35,13 +37,19 @@ public:
     {
         boost::asio::streambuf buf;
         boost::system::error_code error;
-        boost::asio::read_until(socket_, buf, Session::DELIM, error);
+        size_t read_size = sizeof(size_t);
+        size_t readed = boost::asio::read(socket_, buf.prepare(read_size), error);
         if (error) {
             LOG_DEBUG("Failed to handle request: %s\n", error.message().c_str());
             return "";
         }
-
-        return boost::asio::buffer_cast<const char *>(buf.data());
+        read_size = *boost::asio::buffer_cast<const size_t *>(buf.data());
+        readed = boost::asio::read(socket_, buf.prepare(read_size), error);
+        if (error) {
+            LOG_DEBUG("Failed to handle request: %s\n", error.message().c_str());
+            return "";
+        }
+        return std::string(boost::asio::buffer_cast<const char *>(buf.data()), readed);
     }
 
 private:
