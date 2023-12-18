@@ -31,7 +31,7 @@ std::vector<HubStorage::Id> HubStorage::CreateHub(const HubInfo &hub_info)
     meta_info << "Participants:" << std::endl;
 
     std::vector<Id> participant_ids;
-    for (auto &&[name, mail]: hub_info.participants) {
+    for (auto &&[name, mail] : hub_info.participants) {
         auto id = GenerateId(name);
         meta_info << "Id: " << id << std::endl;
         meta_info << NAME << name << std::endl;
