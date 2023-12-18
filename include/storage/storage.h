@@ -89,6 +89,7 @@ public:
     using StorageVisitor = std::function<void(fs::path, const DirEntry &)>;
 
     static constexpr std::string_view STORAGE_DIR_VAR = "STORAGE_DIR";
+    static constexpr std::string_view CR_DIR_VAR = "CR_DIR";
     static constexpr std::string_view CHANGE_REQ = "ChangeRequests";
     static constexpr std::string_view PARTICIPANTS_REQ = "ParticipantsRequests";
     static constexpr std::string_view METAFILE = "METAINFO";
@@ -117,6 +118,17 @@ private:
     Id GenerateId(const std::string &src);
 
     DirEntry storage_dir_;
+};
+
+class DirGuard {
+    fs::path path_;
+
+public:
+    DirGuard() : path_(fs::current_path()) {}
+    ~DirGuard()
+    {
+        fs::current_path(path_);
+    }
 };
 
 }  // namespace shagit

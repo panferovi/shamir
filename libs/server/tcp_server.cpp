@@ -95,6 +95,9 @@ void TCPServer::HandleRequest(Session *session)
         case Request::APPROVE_JOIN:
             ApproveJoin(session, data);
             break;
+        case Request::GET_HUB:
+            GetHub();
+            break;
         default:
             UNREACHABLE();
     }
@@ -165,6 +168,19 @@ void TCPServer::ApproveJoin(Session *session, const std::vector<std::string> &da
              "Hi, " + partcipant.name + "!\nThank you for join to the hub. Your Id is " + std::to_string(pr_id) +
                  "\nYour key is: ..." + "\nYour secret piece is: ...",
              partcipant.mail);
+}
+
+void TCPServer::GetHub()
+{
+    DirGuard guard;
+    std::error_code error;
+    fs::path current_path(std::getenv(HubStorage::CR_DIR_VAR.data()));
+    // current_path /= ;
+    fs::current_path(current_path, error);
+    if (error) {
+        std::cout << "Troubles with dirs.\n";
+        return;
+    }
 }
 
 std::vector<std::string> TCPServer::SplitData(const std::string &str, char separator)

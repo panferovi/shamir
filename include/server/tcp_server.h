@@ -29,6 +29,7 @@ private:
     void CreateHub(const std::vector<std::string> &data);
     void JoinHub(const std::vector<std::string> &data);
     void ApproveJoin(Session *session, const std::vector<std::string> &data);
+    void GetHub();
 
     std::vector<std::string> SplitData(const std::string &str, char separator);
 

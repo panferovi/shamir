@@ -25,6 +25,8 @@ void Client::SendRequest(Args args)
             break;
         case Request::APPROVE_JOIN:
             ApproveJoin();
+        case GET_HUB:
+            GetHub(args);
             break;
         case UNKNOWN:
             return;
@@ -84,6 +86,33 @@ void Client::ApproveJoin()
 
     auto res = session_.Read();
     std::cout << res << std::endl;
+}
+
+void Client::GetHub(Args args)
+{
+    DirGuard guard;
+    std::error_code error;
+    fs::path current_path(std::getenv(STORAGE_DIR_VAR.data()));
+    current_path /= std::to_string(*args.storage_id);
+    fs::create_directories(current_path, error);
+    fs::current_path(current_path, error);
+    if (error) {
+        std::cout << "Troubles with dirs.\n";
+        return;
+    }
+
+    // session_.Write(std::to_string(Request::GET_HUB) + Session::DELIM);
+
+    std::string filename = session_.Read();
+    while (!filename.length()) {
+        fs::path dir_path(filename);
+        dir_path.remove_filename();
+        fs::create_directories(dir_path);
+        std::string file = session_.Read();
+        std::fstream file_stream(filename, std::ios::binary | std::ios::out);
+        file_stream.write(file.data(), file.max_size());
+        filename = session_.Read();
+    }
 }
 
 std::string Client::GetLine(const std::string &out)
