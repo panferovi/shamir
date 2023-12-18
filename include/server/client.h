@@ -2,13 +2,20 @@
 #define SERVER_CLIENT_H
 
 #include "server/session.h"
+#include "storage/storage.h"
+#include <optional>
 
 namespace shagit {
+
+struct Args {
+    Request request;
+    std::optional<HubStorage::Id> storage_id;
+};
 
 class Client {
 public:
     void Connect();
-    void SendRequest(Request request);
+    void SendRequest(Args args);
 
 private:
     // TODO(panferovi): remove from this class

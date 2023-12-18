@@ -7,14 +7,7 @@
 
 namespace shagit {
 
-enum Request {
-    LIST_HUBS,
-    CREATE_HUB,
-    JOIN_HUB,
-    APPROVE_JOIN,
-    CREATE_CR,
-    APPROVE_CR,
-};
+enum Request { LIST_HUBS, CREATE_HUB, JOIN_HUB, APPROVE_JOIN, GET_HUB, CREATE_CR, APPROVE_CR, UNKNOWN };
 
 class Session {
 public:

@@ -123,8 +123,6 @@ ParticipantInfo HubStorage::GetOwner(HubStorage::Id hub_id)
 
     std::string line;
     while (std::getline(meta_info, line)) {
-        std::cout << "line: " << line << std::endl;
-
         if (line.find(OWNER) != std::string::npos) {
             ParticipantInfo owner;
             std::getline(meta_info, line);

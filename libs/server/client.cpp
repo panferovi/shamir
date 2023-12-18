@@ -11,9 +11,9 @@ void Client::Connect()
     session_.GetSocket().connect(endpoint);
 }
 
-void Client::SendRequest(Request request)
+void Client::SendRequest(Args args)
 {
-    switch (request) {
+    switch (args.request) {
         case Request::LIST_HUBS:
             ListHubs();
             break;
@@ -26,6 +26,8 @@ void Client::SendRequest(Request request)
         case Request::APPROVE_JOIN:
             ApproveJoin();
             break;
+        case UNKNOWN:
+            return;
         default:
             UNREACHABLE();
     }

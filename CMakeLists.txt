@@ -18,6 +18,7 @@ file(GLOB_RECURSE SHAGIT_SRC
     libs/*.cpp
     test/*.cpp
     include/*.h
+    shagit/*.cpp
 )
 
 filter_items(SHAGIT_SRC "CMakeFiles/*")
