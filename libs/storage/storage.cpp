@@ -11,7 +11,7 @@ HubStorage::HubStorage() : storage_dir_(std::getenv(STORAGE_DIR_VAR.data()))
     ASSERT_PRINT(storage_dir_.exists(), "The Storage directory is not exists");
 }
 
-HubStorage::Id HubStorage::CreateHub(const HubInfo &hub_info)
+std::vector<HubStorage::Id> HubStorage::CreateHub(const HubInfo &hub_info)
 {
     auto hub_id = GenerateId(hub_info.proj_name);
     fs::path hub_path(storage_dir_.path() / std::to_string(hub_id));
@@ -30,7 +30,17 @@ HubStorage::Id HubStorage::CreateHub(const HubInfo &hub_info)
     meta_info << MAIL << hub_info.owner.mail << std::endl;
     meta_info << "Participants:" << std::endl;
 
-    return hub_id;
+    std::vector<Id> participant_ids;
+    for (auto &&[name, mail]: hub_info.participants) {
+        auto id = GenerateId(name);
+        meta_info << "Id: " << id << std::endl;
+        meta_info << NAME << name << std::endl;
+        meta_info << MAIL << mail << std::endl << std::endl;
+        participant_ids.push_back(id);
+    }
+    participant_ids.push_back(hub_id);
+
+    return participant_ids;
 }
 
 HubStorage::Id HubStorage::JoinHub(HubStorage::Id hub_id, const ParticipantInfo &participant)

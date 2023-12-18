@@ -4,6 +4,7 @@
 #include "server/tcp_server.h"
 #include "utils/macros.h"
 #include "utils/mailutils.h"
+#include "math/math.h"
 
 namespace shagit {
 
@@ -114,7 +115,21 @@ void TCPServer::CreateHub(const std::vector<std::string> &data)
     info.access_number = std::stoull(data[2]);
     info.owner.name = data[3];
     info.owner.mail = data[4];
-    storage_.CreateHub(info);
+    for (size_t i = 5; i < data.size(); i += 2) {
+        info.participants.push_back({data[i], data[i + 1]});
+    }
+
+    auto ids = storage_.CreateHub(info);
+
+    auto secret_piece = math::ShareSecret(info.secret, info.access_number, info.participants.size());
+    for (size_t i = 0; i < secret_piece.points_.size(); ++i) {
+        SendMail("New hub", "Hi, " + info.participants[i].name + "!\nYou have been invited to the " +
+                  info.proj_name + " hub.\nYour Id is " + std::to_string(ids[i]) +
+                  "\nYour key is " + std::to_string(secret_piece.points_[i].key_) +
+                  "\nYour secret piece is " + std::to_string(secret_piece.points_[i].value_),
+                  info.participants[i].mail);
+    }
+
 }
 
 void TCPServer::JoinHub(const std::vector<std::string> &data)
@@ -147,8 +162,8 @@ void TCPServer::ApproveJoin(Session *session, const std::vector<std::string> &da
     storage_.ApproveJoin(hub_id, pr_id);
 
     SendMail("Join Approved",
-             "Hi, " + partcipant.name + "!\nThank you for join. Your Id is " + std::to_string(pr_id) +
-                 "\nYour key is: ..." + "\nYour secret piece is: ...",
+             "Hi, " + partcipant.name + "!\nThank you for join to the hub. Your Id is " +
+             std::to_string(pr_id) + "\nYour key is: ..." + "\nYour secret piece is: ...",
              partcipant.mail);
 }
 

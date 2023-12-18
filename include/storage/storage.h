@@ -79,6 +79,7 @@ struct HubInfo {
     int64_t secret;
     size_t access_number;
     ParticipantInfo owner;
+    std::vector<ParticipantInfo> participants;
 };
 
 class HubStorage {
@@ -100,7 +101,7 @@ public:
     explicit HubStorage();
 
     void ListHubs(std::stringstream &ss);
-    Id CreateHub(const HubInfo &proj_info);
+    std::vector<Id> CreateHub(const HubInfo &proj_info);
     Id JoinHub(Id proj_id, const ParticipantInfo &participant);
     void ApproveJoin(Id proj_id, Id pr_id);
     // Id CreateCR(Id proj_id, ...);

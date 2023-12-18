@@ -51,6 +51,11 @@ void Client::CreateHub()
     request += GetLine("Access number: ");
     request += GetLine("Owner:\n\tName: ");
     request += GetLine("\tMail: ");
+    auto part_cnt = std::stol(GetLine("Initial Participants Count: "));
+    for (size_t i = 0; i < part_cnt; ++i) {
+        request += GetLine("Participant:\n\tName: ");
+        request += GetLine("\tMail: ");
+    }
     request += std::to_string(Request::CREATE_HUB);
 
     session_.Write(request);
