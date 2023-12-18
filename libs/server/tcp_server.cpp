@@ -75,6 +75,8 @@ void TCPServer::HandleConnection(Session *session)
 
 void TCPServer::HandleRequest(Session *session)
 {
+    // EchoTest(session);
+    // return;
     auto buf = session->Read();
     auto data = SplitData(buf, Session::DELIM);
     ASSERT(!data.empty());
@@ -97,6 +99,12 @@ void TCPServer::HandleRequest(Session *session)
             break;
         case Request::GET_HUB:
             GetHub();
+            break;
+        case Request::GET_HUB:
+            GetHub();
+            break;
+        case Request::ECHO_TEST:
+            EchoTest(session);
             break;
         default:
             UNREACHABLE();
@@ -181,6 +189,25 @@ void TCPServer::GetHub()
         std::cout << "Troubles with dirs.\n";
         return;
     }
+}
+
+void TCPServer::GetHub()
+{
+    DirGuard guard;
+    std::error_code error;
+    fs::path current_path(std::getenv(HubStorage::CR_DIR_VAR.data()));
+    // current_path /= ;
+    fs::current_path(current_path, error);
+    if (error) {
+        std::cout << "Troubles with dirs.\n";
+        return;
+    }
+}
+
+void TCPServer::EchoTest(Session *session)
+{
+    std::string line = session->GoodRead();
+    std::cout << line << std::endl;
 }
 
 std::vector<std::string> TCPServer::SplitData(const std::string &str, char separator)

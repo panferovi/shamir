@@ -14,6 +14,7 @@ Args ParseArgs(int argc, char **argv)
                      {"get-hub", required_argument, &request_opt, GET_HUB},
                      {"create-cr", required_argument, &request_opt, CREATE_CR},
                      {"approve-cr", required_argument, &request_opt, APPROVE_CR},
+                     {"echo", no_argument, &request_opt, ECHO_TEST},
                      {nullptr, 0, nullptr, 0}};
     int getopt_result = getopt_long(argc, argv, "", opts, &index);
     if (getopt_result == -1)
